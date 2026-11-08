@@ -28,6 +28,41 @@ def parrafos(texto):
     return "".join(f"<p>{esc(b)}</p>" for b in bloques)
 
 
+def foto(nombre, alt, sizes="100vw", clase="", carga="lazy"):
+    """Foto de img/fotos/<nombre>-800.webp y -1600.webp. Si no existe, no pinta nada."""
+    base = f"img/fotos/{nombre}"
+    if not (RAIZ / f"{base}-800.webp").exists():
+        return ""
+    grande = (RAIZ / f"{base}-1600.webp").exists()
+    srcset = f"/{base}-800.webp 800w" + (f", /{base}-1600.webp 1600w" if grande else "")
+    prio = ' fetchpriority="high"' if carga == "eager" else ""
+    return (f'<img class="{clase}" src="/{base}-800.webp" srcset="{srcset}" sizes="{sizes}" alt="{esc(alt)}" '
+            f'loading="{carga}" decoding="async"{prio}>')
+
+
+def imagen(ruta, alt, sizes="(min-width: 900px) 33vw, 100vw", clase="", carga="lazy"):
+    """Foto subida desde el Gestor de webs: ruta base sin sufijo (img/carpeta/nombre) con -800.webp y -1600.webp."""
+    ruta = str(ruta or "").strip().strip("/")
+    if not ruta or not (RAIZ / f"{ruta}-800.webp").exists():
+        return ""
+    grande = (RAIZ / f"{ruta}-1600.webp").exists()
+    srcset = f"/{ruta}-800.webp 800w" + (f", /{ruta}-1600.webp 1600w" if grande else "")
+    prio = ' fetchpriority="high"' if carga == "eager" else ""
+    return (f'<img class="{clase}" src="/{ruta}-800.webp" srcset="{srcset}" sizes="{sizes}" alt="{esc(alt)}" '
+            f'loading="{carga}" decoding="async"{prio}>')
+
+
+def portada_foto(nombre_stock, alt_stock, clase="portada-foto"):
+    """Foto de portada: la subida desde el Gestor (data/portada.json) o, si no hay, la de banco (img/fotos)."""
+    p = (datos("portada.json", []) or [{}])[0]
+    return (imagen(p.get("imagen"), p.get("imagen_alt") or "", "100vw", clase, "eager")
+            or foto(nombre_stock, alt_stock, "100vw", clase, "eager"))
+
+
+def hay_fotos():
+    return any((RAIZ / "img/fotos").glob("*.webp")) if (RAIZ / "img/fotos").exists() else False
+
+
 def mailto(correo, asunto=""):
     from urllib.parse import quote
     return f"mailto:{correo}" + (f"?subject={quote(asunto)}" if asunto else "")
@@ -71,7 +106,7 @@ class Sitio:
     {self.pie_html}
     <div class="pie-base">
       <span>© <span id="anio">2026</span> {esc(self.titular)}</span>
-      <span><a href="/aviso-legal">Aviso legal</a> · <a href="/privacidad">Privacidad</a> · <a href="/cookies">Cookies</a></span>
+      <span>{'Fotografías: <a href="https://www.freepik.es" rel="noopener">Freepik</a> · ' if hay_fotos() and getattr(self, "credito_fotos", True) else ""}<a href="/aviso-legal">Aviso legal</a> · <a href="/privacidad">Privacidad</a> · <a href="/cookies">Cookies</a></span>
     </div>
   </div>
 </footer>

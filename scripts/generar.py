@@ -11,7 +11,7 @@ import sys
 import pathlib
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
-from web import RAIZ, Sitio, ICO, esc, datos, mailto  # noqa: E402
+from web import RAIZ, Sitio, ICO, esc, datos, mailto, imagen, portada_foto, foto  # noqa: E402
 
 CORREO = "hola@educajoven.org"
 
@@ -37,6 +37,7 @@ S = Sitio(
 
 NOA = (datos("noa.json", []) or [{}])[0]
 HOY = datetime.date.today().isoformat()
+PROYECTOS = datos("proyectos.json", [])
 JORNADAS = sorted((j for j in datos("jornadas.json", []) if (j.get("fecha") or "") >= HOY),
                   key=lambda j: (j.get("fecha", ""), j.get("hora", "")))
 
@@ -108,7 +109,18 @@ def inicio():
                     "addressLocality": "Las Palmas de Gran Canaria", "addressCountry": "ES"},
     }, ensure_ascii=False)
 
-    cuerpo = f'''<section class="portada" id="noa">
+    hero = portada_foto("bengalas", "")
+    que_foto = foto("fuegos", "Grupo de amigos celebrando de noche con fuegos artificiales", "(min-width: 860px) 45vw, 92vw", "que-foto")
+    proyectos = "".join(f'''<article class="proyecto aparece">{imagen(x.get("imagen"), x.get("imagen_alt") or "", "(min-width: 900px) 360px, 92vw", "proyecto-foto")}
+      <div class="proyecto-txt"><h3>{esc(x.get("titulo"))}</h3><p>{esc(x.get("texto"))}</p>
+      {f'<a href="{esc(x["enlace"])}" rel="noopener">Más información {ICO["flecha"]}</a>' if str(x.get("enlace", "")).startswith("https://") else ""}</div></article>'''
+                        for x in PROYECTOS if x.get("titulo"))
+    seccion_proyectos = (f'''<section class="seccion seccion-alta" id="proyectos" aria-labelledby="t-proyectos">
+  <div class="contenedor"><div class="cabecera-seccion"><p class="antetitulo">Más proyectos</p><h2 id="t-proyectos">Otros proyectos de Educajoven</h2></div>
+  <div class="proyectos">{proyectos}</div></div>
+</section>''' if proyectos else "")
+    cuerpo = f'''<section class="portada{" con-foto" if hero else ""}" id="noa">
+  {hero}
   {cielo()}
   <div class="contenedor portada-grid">
     <div>
@@ -134,6 +146,7 @@ def inicio():
     <div><p class="antetitulo">Qué es NOA</p><h2 id="t-que">Un plan para el fin de semana que no depende de dónde vivas</h2></div>
     <div>
       <p class="entradilla">NOA abre las instalaciones públicas por la noche y las llena de actividades: deporte, cultura, arte, talleres y ocio. Hecho por jóvenes, para jóvenes y con jóvenes.</p>
+      {que_foto}
       <p>Pensamos sobre todo en quien vive en barrios alejados, en zonas rurales o en la cumbre, y lo tiene difícil para acceder al ocio del fin de semana por dinero o por transporte. Por eso NOA va a donde está la gente y, cuando hace falta, pone la guagua.</p>
     </div>
   </div>
@@ -183,6 +196,8 @@ def inicio():
     </ul>
   </div>
 </section>
+
+{seccion_proyectos}
 
 <section class="seccion" id="asociacion" aria-labelledby="t-asoc">
   <div class="contenedor estrecho asociacion">

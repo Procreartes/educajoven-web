@@ -103,3 +103,16 @@ h3{font-weight:600}
 .pie-nota{font-size:.92rem}
 @media (max-width:700px){.pie-arriba{grid-template-columns:1fr}}
 .legal,.error{color:var(--texto)}
+
+/* ---- Fotos ---- */
+.portada .portada-foto{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.32;mix-blend-mode:luminosity}
+.portada.con-foto::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(15,19,48,.2),rgba(15,19,48,.85));pointer-events:none}
+.portada.con-foto .portada-grid{z-index:2}
+.que-foto{width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:22px;margin:.5rem 0 1.4rem;box-shadow:0 0 0 1px var(--linea),0 30px 60px -30px rgba(255,181,71,.35)}
+.proyectos{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:1.2rem}
+.proyecto{background:var(--noche);border:1px solid var(--linea);border-radius:22px;overflow:hidden}
+.proyecto-foto{width:100%;aspect-ratio:16/10;object-fit:cover}
+.proyecto-txt{padding:1.5rem}
+.proyecto-txt p{color:var(--suave)}
+.proyecto-txt a{font-weight:700;display:inline-flex;gap:.4rem;align-items:center}
+.proyecto-txt a svg{width:1rem;height:1rem}
